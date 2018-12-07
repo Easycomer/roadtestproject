@@ -16,6 +16,7 @@
 
 package com.google.android.apps.location.gps.gnsslogger;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -28,16 +29,26 @@ import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
 import android.location.LocationManager;
+
+import com.google.android.gms.location.ActivityRecognitionClient;
+import com.google.android.gms.location.ActivityRecognitionResult; //add AR
+import com.google.android.gms.location.DetectedActivity;
+
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.v4.BuildConfig;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 import com.google.android.apps.location.gps.gnsslogger.LoggerFragment.UIFragmentComponent;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
@@ -48,6 +59,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -79,6 +91,8 @@ public class FileLogger implements GnssListener {
   private BufferedWriter mFileWriter;
   private File mFile;
   private File mGzipFile;
+
+  //private DetectedActivity mMostProbableActivity;
 
   private UIFragmentComponent mUiComponent;
 
@@ -269,6 +283,49 @@ public class FileLogger implements GnssListener {
 
   }
 
+//  protected PendingIntent createActivityDetectionPendingIntent() {
+//    Intent intent = new Intent(this, DetectedActivitiesIntentReceiver.class);
+//    return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//  }
+//
+//  private void ActivityRecognitionDetect(){
+//    Task<Void> task = mActivityRecognitionClient.requestActivityUpdates(
+//            DETECTION_INTERVAL_IN_MILLISECONDS,
+//            createActivityDetectionPendingIntent());
+//    ((Task) task).addOnSuccessListener(new OnSuccessListener<Void>() {
+//      @Override
+//      public void onSuccess(Void result) {
+//        Toast.makeText(mContext,
+//                getString(R.string.activity_updates_removed),
+//                Toast.LENGTH_SHORT)
+//                .show();
+//        setUpdatesRequestedState(false);
+//        // Reset the display.
+//        mAdapter.updateActivities(new ArrayList<DetectedActivity>());
+//      }
+//    });
+//
+//    task.addOnFailureListener(new OnFailureListener() {
+//      @Override
+//      public void onFailure(@NonNull Exception e) {
+//        Log.w(TAG, getString(R.string.activity_updates_not_enabled));
+//        Toast.makeText(mContext,
+//                getString(R.string.activity_updates_not_enabled),
+//                Toast.LENGTH_SHORT)
+//                .show();
+//        setUpdatesRequestedState(false);
+//      }
+//    });
+//
+//    ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
+//    ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
+//
+//    for (DetectedActivity activity : detectedActivities) {
+//      Log.e(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
+//    }
+//
+//  }
+
   @Override
   public void onProviderEnabled(String provider) {}
 
@@ -279,6 +336,8 @@ public class FileLogger implements GnssListener {
   public void onLocationChanged(Location location) {
       int a = 1;
     if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+      //add Activity Recognition here
+
       synchronized (mFileLock) {
         if (mFileWriter == null) {
           return;
@@ -308,6 +367,7 @@ public class FileLogger implements GnssListener {
     public void onSensorChanged(SensorEvent event) {
       int a = 1;
       synchronized (mFileLock){
+
           if (mFileWriter == null) {
               return;
           }

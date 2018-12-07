@@ -45,6 +45,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -53,8 +55,12 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 //import com.google.android.gms.permission.ACTIVITY_RECOGNITION;//added
 import java.util.Locale;
+import java.util.ArrayList;
 
 /** The activity for the application. */
 public class MainActivity extends AppCompatActivity
@@ -82,6 +88,11 @@ public class MainActivity extends AppCompatActivity
   private boolean mAutoSwitchGroundTruthMode;
   private final ActivityDetectionBroadcastReceiver mBroadcastReceiver =
       new ActivityDetectionBroadcastReceiver();
+
+  private ActivityRecognitionClient mActivityRecognitionClient; //build ActivityRecognitionClient
+
+    private static final long DETECTION_INTERVAL_IN_MILLISECONDS = 1 * 1000; // 30 seconds
+
 
   private ServiceConnection mConnection =
       new ServiceConnection() {
@@ -139,7 +150,7 @@ public class MainActivity extends AppCompatActivity
     editor.commit();
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    buildGoogleApiClient();
+    buildGoogleApiClient(this);
     requestPermissionAndSetupFragments(this);
     mGnssContainer.registerSensor();//need to register here, ow not called
   }
@@ -149,14 +160,15 @@ public class MainActivity extends AppCompatActivity
     return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
   }
 
-  private synchronized void buildGoogleApiClient() {
+  private synchronized void buildGoogleApiClient(Context context) {
     mGoogleApiClient =
-        new GoogleApiClient.Builder(this)
+        new GoogleApiClient.Builder(context)
             .enableAutoManage(this, this)
             .addConnectionCallbacks(this)
             .addOnConnectionFailedListener(this)
             .addApi(ActivityRecognition.API)
             .build();
+     mActivityRecognitionClient = new ActivityRecognitionClient(context); //build my ActivityRecognitionClient
   }
 
   @Override
@@ -171,8 +183,11 @@ public class MainActivity extends AppCompatActivity
     if (Log.isLoggable(TAG, Log.INFO)) {
       Log.i(TAG, "Connected to GoogleApiClient");
     }
-    ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
-        mGoogleApiClient, 0, createActivityDetectionPendingIntent());
+//    ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
+//        mGoogleApiClient, 0, createActivityDetectionPendingIntent());
+    mActivityRecognitionClient.requestActivityUpdates(
+              DETECTION_INTERVAL_IN_MILLISECONDS,
+              createActivityDetectionPendingIntent());
   }
 
   @Override
@@ -355,10 +370,25 @@ public class MainActivity extends AppCompatActivity
 
       // Modify the status of mRealTimePositionVelocityCalculator only if the status is set to auto
       // (indicated by mAutoSwitchGroundTruthMode).
-      if (mAutoSwitchGroundTruthMode) {
+//      if (mAutoSwitchGroundTruthMode) {
+//        ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
+//        setGroundTruthModeOnResult(result);
+//      }
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
         setGroundTruthModeOnResult(result);
-      }
+
+        ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
+      //DetectedActivity activity = result.getMostProbableActivity();
+      //Toast.makeText(context, activity.getType(), Toast.LENGTH_SHORT).show();
+
+        for (DetectedActivity activity : detectedActivities) {
+            Log.e(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
+//            Toast.makeText(context,
+//                    getString(R.string.activity_updates_removed),
+//                    Toast.LENGTH_SHORT)
+//                    .show();
+//            Toast.makeText(context, activity.getType(), Toast.LENGTH_LONG).show();
+        }
     }
   }
 
