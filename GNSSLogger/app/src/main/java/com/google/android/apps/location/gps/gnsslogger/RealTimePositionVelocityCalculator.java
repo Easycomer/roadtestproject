@@ -34,6 +34,7 @@ import com.google.location.lbs.gnss.gps.pseudorange.GpsNavigationMessageStore;
 import com.google.location.lbs.gnss.gps.pseudorange.PseudorangePositionVelocityFromRealTimeEvents;
 import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
+import com.google.android.gms.location.DetectedActivity;
 
 /**
  * A class that handles real time position and velocity calculation, passing {@link
@@ -515,35 +516,64 @@ public class RealTimePositionVelocityCalculator implements GnssListener {
     if (mPseudorangePositionVelocityFromRealTimeEvents == null) {
       return;
     }
-    switch (mResidualPlotStatus) {
-      case RESIDUAL_MODE_MOVING:
-        mPseudorangePositionVelocityFromRealTimeEvents
-            .setCorrectedResidualComputationTruthLocationLla(mGroundTruth);
-        logEvent("Residual Plot", "Mode is set to moving", mCurrentColor);
+//    switch (mResidualPlotStatus) {
+//      case RESIDUAL_MODE_MOVING:
+//        mPseudorangePositionVelocityFromRealTimeEvents
+//            .setCorrectedResidualComputationTruthLocationLla(mGroundTruth);
+//        logEvent("Residual Plot", "Mode is set to moving", mCurrentColor);
+//        break;
+//
+//      case RESIDUAL_MODE_STILL:
+//        mPseudorangePositionVelocityFromRealTimeEvents
+//            .setCorrectedResidualComputationTruthLocationLla(mGroundTruth);
+//        logEvent("Residual Plot", "Mode is set to still", mCurrentColor);
+//        break;
+//
+//      case RESIDUAL_MODE_AT_INPUT_LOCATION:
+//        mPseudorangePositionVelocityFromRealTimeEvents
+//            .setCorrectedResidualComputationTruthLocationLla(fixedGroundTruth);
+//        logEvent("Residual Plot", "Mode is set to fixed ground truth", mCurrentColor);
+//        break;
+//
+//      case RESIDUAL_MODE_DISABLED:
+//        mGroundTruth = null;
+//        mPseudorangePositionVelocityFromRealTimeEvents
+//            .setCorrectedResidualComputationTruthLocationLla(mGroundTruth);
+//        logEvent("Residual Plot", "Mode is set to Disabled", mCurrentColor);
+//        break;
+//
+//      default:
+//        mPseudorangePositionVelocityFromRealTimeEvents
+//            .setCorrectedResidualComputationTruthLocationLla(null);
+//    }
+    switch(residualPlotStatus) {
+      case DetectedActivity.IN_VEHICLE:
+        logEvent("Residual Plot", "Mode is set to IN_VEHICLE", mCurrentColor);
         break;
-
-      case RESIDUAL_MODE_STILL:
-        mPseudorangePositionVelocityFromRealTimeEvents
-            .setCorrectedResidualComputationTruthLocationLla(mGroundTruth);
-        logEvent("Residual Plot", "Mode is set to still", mCurrentColor);
+      case DetectedActivity.ON_BICYCLE:
+        logEvent("Residual Plot", "Mode is set to ON_BICYCLE", mCurrentColor);
         break;
-
-      case RESIDUAL_MODE_AT_INPUT_LOCATION:
-        mPseudorangePositionVelocityFromRealTimeEvents
-            .setCorrectedResidualComputationTruthLocationLla(fixedGroundTruth);
+      case DetectedActivity.ON_FOOT:
+        logEvent("Residual Plot", "Mode is set to ON_FOOT", mCurrentColor);
+        break;
+      case DetectedActivity.RUNNING:
+        logEvent("Residual Plot", "Mode is set to RUNNING", mCurrentColor);
+        break;
+      case DetectedActivity.STILL:
+        logEvent("Residual Plot", "Mode is set to STILL", mCurrentColor);
+        break;
+      case DetectedActivity.TILTING:
+        logEvent("Residual Plot", "Mode is set to TILTING", mCurrentColor);
+        break;
+      case DetectedActivity.UNKNOWN:
+        logEvent("Residual Plot", "Mode is set to UNKNOWN", mCurrentColor);
+        break;
+      case DetectedActivity.WALKING:
+        logEvent("Residual Plot", "Mode is set to WALKING", mCurrentColor);
+        break;
+      default:
         logEvent("Residual Plot", "Mode is set to fixed ground truth", mCurrentColor);
         break;
-
-      case RESIDUAL_MODE_DISABLED:
-        mGroundTruth = null;
-        mPseudorangePositionVelocityFromRealTimeEvents
-            .setCorrectedResidualComputationTruthLocationLla(mGroundTruth);
-        logEvent("Residual Plot", "Mode is set to Disabled", mCurrentColor);
-        break;
-
-      default:
-        mPseudorangePositionVelocityFromRealTimeEvents
-            .setCorrectedResidualComputationTruthLocationLla(null);
     }
   }
 

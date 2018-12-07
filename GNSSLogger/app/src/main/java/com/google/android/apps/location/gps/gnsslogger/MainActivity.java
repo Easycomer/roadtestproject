@@ -375,10 +375,12 @@ public class MainActivity extends AppCompatActivity
 //        setGroundTruthModeOnResult(result);
 //      }
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-        setGroundTruthModeOnResult(result);
+        //setGroundTruthModeOnResult(result);
 
         ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
-      //DetectedActivity activity = result.getMostProbableActivity();
+      DetectedActivity mostProbableActivity = result.getMostProbableActivity();
+      mRealTimePositionVelocityCalculator.setResidualPlotMode(
+              mostProbableActivity.getType(), null);
       //Toast.makeText(context, activity.getType(), Toast.LENGTH_SHORT).show();
 
         for (DetectedActivity activity : detectedActivities) {
