@@ -381,16 +381,20 @@ public class MainActivity extends AppCompatActivity
       DetectedActivity mostProbableActivity = result.getMostProbableActivity();
       mRealTimePositionVelocityCalculator.setResidualPlotMode(
               mostProbableActivity.getType(), null);
+      for (DetectedActivity activity : detectedActivities) {
+        mRealTimePositionVelocityCalculator.setResidualPlotMode(
+                activity.getType(), null);
+      }
       //Toast.makeText(context, activity.getType(), Toast.LENGTH_SHORT).show();
 
-        for (DetectedActivity activity : detectedActivities) {
-            Log.e(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
+//        for (DetectedActivity activity : detectedActivities) {
+//            Log.e(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
 //            Toast.makeText(context,
 //                    getString(R.string.activity_updates_removed),
 //                    Toast.LENGTH_SHORT)
 //                    .show();
 //            Toast.makeText(context, activity.getType(), Toast.LENGTH_LONG).show();
-        }
+//        }
     }
   }
 

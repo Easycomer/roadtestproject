@@ -374,7 +374,7 @@ public class FileLogger implements GnssListener {
           String sensorStream =
                   String.format(
                           Locale.US,
-                          "Look Im here,%d,%s",
+                          "Sensor Type,%d, Sensor Values,%s",
                           event.sensor.getType(),
                           Arrays.toString(event.values)
                           );
